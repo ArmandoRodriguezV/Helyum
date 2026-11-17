@@ -60,6 +60,7 @@ Makefile
 *.opensdf
 *.VC.db
 *.VC.VC.opendb
+*.env
 
 # ==========================================
 # Sistema operativo
