@@ -41,7 +41,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
         auto* data = outputBuffer.getWritePointer(ch);
 
         osc1[ch].setGain(gain);
-        osc1[ch].setWaveFrame(params.get(ParameterIDs::OSC_WAVE_FRAME_ID));
+        osc1[ch].setWaveFrame(params.get(ParameterIDs::OSC1_WAVE_FRAME_ID));
 
         osc1[ch].process(data, numSamples);
 

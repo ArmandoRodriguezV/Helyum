@@ -4,7 +4,7 @@
 //==============================================================================
 HelyumAudioProcessorEditor::HelyumAudioProcessorEditor (HelyumAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
-    osc1(p.context)
+    osc1(p.context, ParameterIDs::OSC1_VOLUME, ParameterIDs::OSC1_WAVE_FRAME_ID)
 {
     addAndMakeVisible(osc1);
     setSize(1080, 720);
@@ -34,11 +34,8 @@ void HelyumAudioProcessorEditor::resized()
         juce::Grid::TrackInfo(juce::Grid::Fr(1))
     };
 
-    grid.columnGap = juce::Grid::Px(8);
-    grid.rowGap = juce::Grid::Px(8);
-
     grid.items = {
-        juce::GridItem(osc1).withArea(1, 1, 2, 2)
+        juce::GridItem(osc1).withArea(1, 1, 2, 2),
     };
 
     grid.performLayout(getLocalBounds());

@@ -5,7 +5,11 @@
 class OscillatorUI: public juce::Component
 {
 public:
-    explicit OscillatorUI(ParameterContext& state);
+    explicit OscillatorUI(
+        ParameterContext& state,
+        juce::String gainId,
+        juce::String waveFrameId
+        );
     ~OscillatorUI();
 
     void paint(juce::Graphics& g) override;
@@ -14,7 +18,10 @@ private:
     ParameterContext& state;
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
-    juce::Slider gain;
-    std::unique_ptr<SliderAttachment> gainAttachment;
+    juce::ComboBox wavetables;
 
+    juce::Slider gain, pan, waveFrame;
+    std::unique_ptr<SliderAttachment> gainAttachment, waveFrameAttachment;
+
+    void preOptions();
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <JuceHeader.h>
+#include "../Pressets/Dictionary/Dictionary.cpp"
 
 class Oscillator
 {
@@ -13,6 +14,7 @@ public:
     void setFrequency(const float freq);
     void setGain(const float g);
     void setWaveFrame(const float wf);
+    void setWaveform(const int id);
 
 private:
     juce::Random random;

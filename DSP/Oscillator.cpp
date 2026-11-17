@@ -22,10 +22,7 @@ void Oscillator::process(float* data, int numSamples)
 void Oscillator::prepare(const double sP)
 {
     sampleRate = sP;
-
-    auto wt = Wavetable::loadWavetable(BinaryData::sine_morph_wav, BinaryData::sine_morph_wavSize);
-    wavetable = wt;
-
+    setWaveform(0);
     updatePhaseIncrement();
     reset();
 }
@@ -52,6 +49,15 @@ void Oscillator::setWaveFrame(const float wf)
     if (wavetable.size() <= 0)
         return;
     waveframe = static_cast<int>(wf * (wavetable.size() - 1));
+}
+
+void Oscillator::setWaveform(const int id)
+{
+    const auto wt = WavetableLibrary::find(id);
+    if (wt == nullptr)
+        return;
+
+    wavetable = Wavetable::loadWavetable(wt->data, wt->size);
 }
 
 // Private

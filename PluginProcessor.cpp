@@ -147,8 +147,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
+    // Osc 1
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_VOLUME, "Osc 1 Volume", -60.0f, 6.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC_WAVE_FRAME_ID, "Osc 1 wave frame", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_WAVE_FRAME_ID, "Osc 1 wave frame", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC1_OCTAVE, "Osc 1 octave", 0, -4, 4));
 
     return { params.begin(), params.end() };
 }
