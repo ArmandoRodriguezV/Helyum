@@ -4,11 +4,10 @@
 
 void Oscillator::process(float* data, int numSamples)
 {
-    const auto& frame = wavetable[waveframe];
-
+    const auto& fm = wavetable[waveFrame];
     for (int i = 0; i < numSamples; ++i) {
         int index = static_cast<int>(phase * Wavetable::FRAME_SIZE);
-        float sample = frame[index] * gain;
+        float sample = fm[index] * gain;
 
         data[i] = sample;
 
@@ -22,7 +21,7 @@ void Oscillator::process(float* data, int numSamples)
 void Oscillator::prepare(const double sP)
 {
     sampleRate = sP;
-    setWavetable(0);
+
     updatePhaseIncrement();
     reset();
 }
@@ -48,20 +47,22 @@ void Oscillator::setWaveFrame(const float wf)
 {
     if (wavetable.size() <= 0)
         return;
-    waveframe = static_cast<int>(wf * (wavetable.size() - 1));
+    waveFrame = static_cast<int>(wf * (wavetable.size() - 1));
 }
 
-void Oscillator::setWavetable(const int id)
+void Oscillator::setWavetable(const Wavetable::Table& table)
 {
-    const auto wt = WavetableLibrary::find(id);
-    if (wt == nullptr)
-        return;
+    wavetable = table;
+}
 
-    wavetable = Wavetable::loadWavetable(wt->data, wt->size);
+void Oscillator::setTune(const float tn)
+{
+    tune = std::pow(2, tn / 12);
+    updatePhaseIncrement();
 }
 
 // Private
 void Oscillator::updatePhaseIncrement()
 {
-    phaseIncrement = frequency / sampleRate;
+    phaseIncrement = tune * frequency / sampleRate;
 }

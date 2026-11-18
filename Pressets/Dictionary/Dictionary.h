@@ -4,7 +4,8 @@
 enum class Category
 {
   Basic,
-  Complex
+  Complex,
+  Digital
 };
 
 struct WaveTable

@@ -1,6 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "../Pressets/Dictionary/Dictionary.h"
+#include "../Resources/Wavetable.h"
 
 class Oscillator
 {
@@ -14,7 +15,11 @@ public:
     void setFrequency(const float freq);
     void setGain(const float g);
     void setWaveFrame(const float wf);
-    void setWavetable(const int id);
+    void setWavetable(const Wavetable::Table &table);
+    void setTune(const float tn);
+
+    // Getters
+    int getFrame() const { return waveFrame; }
 
 private:
     juce::Random random;
@@ -26,8 +31,10 @@ private:
     float phase = 0.0f;
     float phaseIncrement = 0.0f;
 
-    std::vector<std::vector<float>> wavetable;
-    int waveframe = 0;
+    float tune = 1.0f;
+
+    Wavetable::Table wavetable;
+    int waveFrame = 0;
 
     void updatePhaseIncrement();
 };

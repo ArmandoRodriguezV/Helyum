@@ -5,9 +5,12 @@
 HelyumAudioProcessorEditor::HelyumAudioProcessorEditor (HelyumAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
     osc1(p.context,
-        ParameterIDs::OSC1_VOLUME, ParameterIDs::OSC1_WAVE_FRAME_ID,
-        ParameterIDs::OSC1_WAVE_CHOOSE)
+        ParameterIDs::OSC1_VOLUME, ParameterIDs::OSC1_PAN,
+        ParameterIDs::OSC1_WAVE_FRAME_ID, ParameterIDs::OSC1_WAVE_CHOOSE,
+        ParameterIDs::OSC1_TUNE
+        )
 {
+    startTimerHz(60);
     addAndMakeVisible(osc1);
     setSize(1080, 720);
 }
@@ -41,4 +44,9 @@ void HelyumAudioProcessorEditor::resized()
     };
 
     grid.performLayout(getLocalBounds());
+}
+
+void HelyumAudioProcessorEditor::timerCallback()
+{
+    osc1.repaint();
 }

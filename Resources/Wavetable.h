@@ -9,6 +9,8 @@ public:
     using Frame = std::vector<float>;
     using Table = std::vector<Frame>;
 
+    inline static Frame wavetableOsc1;
+
     static Table loadWavetable(const void* data, size_t dataSize)
     {
         auto audio = AudioLoader::loadWav(data, dataSize);

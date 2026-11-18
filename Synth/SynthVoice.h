@@ -4,6 +4,7 @@
 #include "../DSP/Oscillator.h"
 #include "../Resources/ParameterContext.h"
 #include "../Resources/ParameterIDs.h"
+#include "../Resources/Constants.h"
 
 class SynthVoice: public juce::SynthesiserVoice
 {
@@ -17,6 +18,9 @@ public:
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
     void stopNote(float velocity, bool allowTailOff) override;
 
+    // Setters
+    void alwaysProcess();
+
 private:
     Oscillator osc1[2];
 
@@ -28,4 +32,11 @@ private:
     ParameterContext& params;
     int lastWavetable = 0;
     int currentWavetable = 0;
+
+    // Wavetable IDs loaders
+    int lastWavetableIDOsc1 = -1;
+
+    // Wavetables
+    Wavetable::Table osc1Wavetable;
+    int lastWaveFrameOsc1 = -1;
 };

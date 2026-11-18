@@ -1,10 +1,9 @@
 #pragma once
-
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "UI/Osc/OscillatorUI.h"
 
-class HelyumAudioProcessorEditor  : public juce::AudioProcessorEditor
+class HelyumAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::Timer
 {
 public:
     HelyumAudioProcessorEditor (HelyumAudioProcessor&);
@@ -13,6 +12,8 @@ public:
     //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
+
+    void timerCallback() override;
 
 private:
     OscillatorUI osc1;

@@ -22,13 +22,10 @@ HelyumAudioProcessor::HelyumAudioProcessor()
                      #endif
                        ),
     apvts(*this, nullptr, "PARAMS", parameterLayout()),
-    context(apvts)
+    context(apvts),
+    synth(context)
 #endif
 {
-    for (int i = 0; i < 8; ++i)
-        synth.addVoice(new SynthVoice(context));
-
-    synth.addSound(new SynthSound());
 }
 
 HelyumAudioProcessor::~HelyumAudioProcessor()
@@ -96,7 +93,7 @@ void HelyumAudioProcessor::changeProgramName (int index, const juce::String& new
 //==============================================================================
 void HelyumAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    synth.setCurrentPlaybackSampleRate(sampleRate);
+    synth.prepare(sampleRate);
 }
 
 void HelyumAudioProcessor::releaseResources()
@@ -140,7 +137,7 @@ void HelyumAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+    synth.process(buffer, midiMessages);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parameterLayout()
@@ -153,9 +150,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
 
     // Osc 1
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_VOLUME, "Osc 1 Volume", -60.0f, 6.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_PAN, "Osc 1 Pan", -1.0f, 1.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_WAVE_FRAME_ID, "Osc 1 wave frame", 0.0f, 1.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC1_OCTAVE, "Osc 1 octave", -4, 4, 0));
     params.push_back(std::make_unique<juce::AudioParameterChoice>(ParameterIDs::OSC1_WAVE_CHOOSE, "Osc 1 wavetable", waveChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC1_TUNE, "Osc 1 Tune", -48, 48, 0));
 
     return { params.begin(), params.end() };
 }

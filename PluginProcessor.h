@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "Synth/SynthVoice.h"
 #include "Synth/SynthSound.h"
+#include "Synth/ElyumSynth.h"
 #include "Resources/ParameterContext.h"
 #include "Resources/ParameterIDs.h"
 #include "Pressets/Dictionary/Dictionary.h"
@@ -52,7 +53,7 @@ private:
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout parameterLayout();
 
-    juce::Synthesiser synth;
+    ElyumSynth synth;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HelyumAudioProcessor)
 };
