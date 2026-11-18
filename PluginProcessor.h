@@ -5,6 +5,7 @@
 #include "Synth/SynthSound.h"
 #include "Resources/ParameterContext.h"
 #include "Resources/ParameterIDs.h"
+#include "Pressets/Dictionary/Dictionary.h"
 
 class HelyumAudioProcessor  : public juce::AudioProcessor
 {

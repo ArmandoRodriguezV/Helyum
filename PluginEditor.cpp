@@ -4,7 +4,9 @@
 //==============================================================================
 HelyumAudioProcessorEditor::HelyumAudioProcessorEditor (HelyumAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
-    osc1(p.context, ParameterIDs::OSC1_VOLUME, ParameterIDs::OSC1_WAVE_FRAME_ID)
+    osc1(p.context,
+        ParameterIDs::OSC1_VOLUME, ParameterIDs::OSC1_WAVE_FRAME_ID,
+        ParameterIDs::OSC1_WAVE_CHOOSE)
 {
     addAndMakeVisible(osc1);
     setSize(1080, 720);

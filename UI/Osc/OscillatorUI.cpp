@@ -1,22 +1,29 @@
 #include "OscillatorUI.h"
 #include "../../Resources/ParameterIDs.h"
+#include "../../Resources/Wavetable.h"
 
 OscillatorUI::OscillatorUI(
     ParameterContext& state,
     juce::String gainId,
-    juce::String waveFrameId
+    juce::String waveFrameId,
+    juce::String waveSelectorId
     )
-    : state(state)
+    : state(state), waveSelectorId(waveSelectorId)
 {
     addAndMakeVisible(gain);
     gainAttachment = std::make_unique<SliderAttachment>(state.apvts(), gainId, gain);
 
-    addAndMakeVisible(wavetables);
 
     addAndMakeVisible(pan);
 
     waveFrameAttachment = std::make_unique<SliderAttachment>(state.apvts(), waveFrameId, waveFrame);
     addAndMakeVisible(waveFrame);
+
+    addAndMakeVisible(wavetables);
+    wavetables.onClick = [this] ()
+    {
+        createWavetableMenu();
+    };
 }
 
 OscillatorUI::~OscillatorUI()
@@ -44,13 +51,13 @@ void OscillatorUI::paint(juce::Graphics& g)
                 cellHeight
             );
             g.drawRect(cell, 1.0f);
-            g.setColour(juce::Colours::white.withAlpha(0.5f));
+            g.setColour(juce::Colours::white.withAlpha(0.0f));
             g.drawText(
                 juce::String(row + 1) + ", " + juce::String(column + 1),
                 cell,
                 juce::Justification::centred
             );
-            g.setColour(juce::Colours::white.withAlpha(0.35f));
+            g.setColour(juce::Colours::white.withAlpha(0.0f));
         }
     }
 }
@@ -75,10 +82,13 @@ void OscillatorUI::resized()
         juce::Grid::TrackInfo(juce::Grid::Fr(1)),
     }; // 6
 
+    grid.setGap(juce::Grid::Px(10));
+
     grid.items = {
         juce::GridItem(gain).withArea(4, 1, 6, 1),
         juce::GridItem(pan).withArea(4, 2, 6, 2),
         juce::GridItem(waveFrame).withArea(4, 3, 6, 3),
+        juce::GridItem(wavetables).withArea(1, 4, 1, 7),
     };
 
     grid.performLayout(getLocalBounds().reduced(10));
@@ -87,11 +97,60 @@ void OscillatorUI::resized()
 void OscillatorUI::preOptions()
 {
     gain.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    gain.setTextBoxStyle(juce::Slider::NoTextBox, 0, 0, false);
+    gain.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, false);
 
     pan.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    pan.setTextBoxStyle(juce::Slider::NoTextBox, 0, 0, false);
+    pan.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, false);
 
     waveFrame.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    waveFrame.setTextBoxStyle(juce::Slider::NoTextBox, 0, 0, false);
+    waveFrame.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, false);
+}
+
+void OscillatorUI::createWavetableMenu()
+{
+    juce::PopupMenu menu;
+    juce::PopupMenu basic;
+    juce::PopupMenu digital;
+
+    for (int i = 0; i < WavetableLibrary::allCount; i++)
+    {
+        const auto* wt = &WavetableLibrary::all[i];
+        const int menuId = wt->id + 1;
+
+        if (wt->category == Category::Basic)
+            basic.addItem(menuId, wt->name);
+
+        if (wt->category == Category::Complex)
+            digital.addItem(menuId, wt->name);
+    }
+
+    menu.addSubMenu("Basic", basic);
+    menu.addSubMenu("Digital", digital);
+
+    menu.showMenuAsync(
+        juce::PopupMenu::Options().withTargetComponent(&wavetables),
+        [this](const int result)
+        {
+            if (result <= 0)
+                return;
+
+            const int selectedId = result - 1;
+            const auto* wt = WavetableLibrary::find(selectedId);
+
+            if (wt == nullptr)
+                return;
+
+            wavetables.setButtonText(wt->name);
+
+            if (auto* param = dynamic_cast<juce::AudioParameterChoice*>(
+                state.apvts().getParameter(waveSelectorId)))
+            {
+                const float normalized = param->convertTo0to1(
+                    static_cast<float>(selectedId)
+                );
+
+                param->setValueNotifyingHost(normalized);
+            }
+        }
+    );
 }

@@ -1,30 +1,15 @@
-#include <JuceHeader.h>
-
-enum class Category
-{
-    Basic,
-    Digital
-};
-
-struct WaveTable
-{
-    int id;
-    Category cat;
-    const void* data;
-    size_t size;
-    const char* name;
-};
+#include "Dictionary.h"
 
 namespace WavetableLibrary
 {
-    inline const WaveTable all[] = {
-        {0, Category::Basic, BinaryData::basic_shapes_wav, BinaryData::basic_shapes_wavSize},
-        {1, Category::Basic, BinaryData::basic_morph_wav, BinaryData::basic_morph_wavSize},
-        {2, Category::Basic, BinaryData::sine_morph_wav, BinaryData::sine_morph_wavSize},
+    const WaveTable all[] = {
+        {0, Category::Basic, BinaryData::basic_shapes_wav, BinaryData::basic_shapes_wavSize, "Basic shapes"},
+        {1, Category::Basic, BinaryData::basic_morph_wav, BinaryData::basic_morph_wavSize, "Basic morph"},
+        {2, Category::Complex, BinaryData::sine_morph_wav, BinaryData::sine_morph_wavSize, "Sine morph"},
     };
 
-    inline constexpr int allCount = sizeof(all) / sizeof(WaveTable);
-    inline const WaveTable* find(int id)
+    const int allCount = std::size(all);
+    const WaveTable* find(const int id)
     {
         for (int i = 0; i < allCount; ++i)
         {

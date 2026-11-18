@@ -34,19 +34,30 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     totalChannels = outputBuffer.getNumChannels();
 
     const float volume = params.get(ParameterIDs::OSC1_VOLUME);
-    const auto gain = juce::Decibels::decibelsToGain(volume, -60.0f);
+    const float gain = juce::Decibels::decibelsToGain(volume, -60.0f);
+    const float waveFrame = params.get(ParameterIDs::OSC1_WAVE_FRAME_ID);
+
+    auto* param = dynamic_cast<juce::AudioParameterChoice*>(
+    params.apvts().getParameter(ParameterIDs::OSC1_WAVE_CHOOSE)
+);
+
+    if (param != nullptr)
+    {
+        const int wavetableId = param->getIndex();
+        DBG("Wavetable index: " << wavetableId);
+    }
 
     for (int ch = 0; ch < totalChannels; ++ch)
     {
         auto* data = outputBuffer.getWritePointer(ch);
 
         osc1[ch].setGain(gain);
-        osc1[ch].setWaveFrame(params.get(ParameterIDs::OSC1_WAVE_FRAME_ID));
+        osc1[ch].setWaveFrame(waveFrame);
 
-        osc1[ch].process(data, numSamples);
+        osc1[ch].process(data + startSample, numSamples);
 
-        for (int i = startSample; i < startSample + numSamples; ++i)
-            data[i] *= velocity;
+        for (int i = 0; i < numSamples; ++i)
+            data[startSample + i] *= velocity;
     }
 }
 

@@ -26,4 +26,6 @@ private:
     int totalChannels = 2;
 
     ParameterContext& params;
+    int lastWavetable = 0;
+    int currentWavetable = 0;
 };

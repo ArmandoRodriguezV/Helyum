@@ -22,7 +22,7 @@ void Oscillator::process(float* data, int numSamples)
 void Oscillator::prepare(const double sP)
 {
     sampleRate = sP;
-    setWaveform(0);
+    setWavetable(0);
     updatePhaseIncrement();
     reset();
 }
@@ -51,7 +51,7 @@ void Oscillator::setWaveFrame(const float wf)
     waveframe = static_cast<int>(wf * (wavetable.size() - 1));
 }
 
-void Oscillator::setWaveform(const int id)
+void Oscillator::setWavetable(const int id)
 {
     const auto wt = WavetableLibrary::find(id);
     if (wt == nullptr)
