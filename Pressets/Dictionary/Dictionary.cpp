@@ -8,6 +8,7 @@ namespace WavetableLibrary
         {2, Category::Basic, BinaryData::sine_morph_wav, BinaryData::sine_morph_wavSize, "Sine morph"},
         {3, Category::Digital, BinaryData::duck_reflux_wav, BinaryData::duck_reflux_wavSize, "Duck reflux"},
         {4, Category::Complex, BinaryData::complex_1_wav, BinaryData::complex_1_wavSize, "Complex 1"},
+        {5, Category::Complex, BinaryData::complex_2_wav, BinaryData::complex_2_wavSize, "Complex 2"},
     };
 
     const int allCount = std::size(all);

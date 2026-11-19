@@ -149,12 +149,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
         waveChoices.add(WavetableLibrary::all[i].name);
 
     // Osc 1
+    params.push_back(std::make_unique<juce::AudioParameterBool>(ParameterIDs::OSC1_ENABLE, "Osc 1 Active", true));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_VOLUME, "Osc 1 Volume", -60.0f, 6.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_PAN, "Osc 1 Pan", -1.0f, 1.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_WAVE_FRAME_ID, "Osc 1 wave frame", 0.0f, 1.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC1_OCTAVE, "Osc 1 octave", -4, 4, 0));
     params.push_back(std::make_unique<juce::AudioParameterChoice>(ParameterIDs::OSC1_WAVE_CHOOSE, "Osc 1 wavetable", waveChoices, 0));
-    params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC1_TUNE, "Osc 1 Tune", -48, 48, 0));
+    params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC1_TRANSPOSE, "Osc 1 Transpose", -48, 48, 0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_TUNE, "Osc 1 Tune", -1, 1, 0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_PHASE_MULT, "Osc 1 Phase", 0.0f, 1.0f, 1.0f));
+
+    // Osc 2
+    params.push_back(std::make_unique<juce::AudioParameterBool>(ParameterIDs::OSC2_ENABLE, "Osc 2 Active", false));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_VOLUME, "Osc 2 Volume", -60.0f, 6.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_PAN, "Osc 2 Pan", -1.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_WAVE_FRAME_ID, "Osc 2 wave frame", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(ParameterIDs::OSC2_WAVE_CHOOSE, "Osc 2 wavetable", waveChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC2_TRANSPOSE, "Osc 2 Transpose", -48, 48, 0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_TUNE, "Osc 2 Tune", -1, 1, 0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_PHASE_MULT, "Osc 1 Phase", 0.0f, 1.0f, 1.0f));
 
     return { params.begin(), params.end() };
 }
@@ -173,15 +185,22 @@ juce::AudioProcessorEditor* HelyumAudioProcessor::createEditor()
 //==============================================================================
 void HelyumAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
 void HelyumAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> xml(getXmlFromBinary(data, sizeInBytes));
+
+    if (xml != nullptr)
+    {
+        auto state = juce::ValueTree::fromXml(*xml);
+
+        if (state.isValid())
+            apvts.replaceState(state);
+    }
 }
 
 //==============================================================================

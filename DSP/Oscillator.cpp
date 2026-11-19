@@ -9,10 +9,9 @@ void Oscillator::process(float* data, int numSamples)
         int index = static_cast<int>(phase * Wavetable::FRAME_SIZE);
         float sample = fm[index] * gain;
 
-        data[i] = sample;
+        data[i] += sample;
 
         phase += phaseIncrement;
-
         if (phase >= 1.0)
             phase -= 1.0;
     }
@@ -26,9 +25,14 @@ void Oscillator::prepare(const double sP)
     reset();
 }
 
+void Oscillator::setPhase(const float phs)
+{
+    phase = phs - std::floor(phs);
+}
+
 void Oscillator::reset()
 {
-    phase = 0.0f;
+    phase = initialPhase;
 }
 
 // Setters
@@ -57,12 +61,18 @@ void Oscillator::setWavetable(const Wavetable::Table& table)
 
 void Oscillator::setTune(const float tn)
 {
-    tune = std::pow(2, tn / 12);
+    tune = pow(2, tn / 12);
+    updatePhaseIncrement();
+}
+
+void Oscillator::setTranspose(const float tpse)
+{
+    transpose = std::pow(2, tpse / 12);
     updatePhaseIncrement();
 }
 
 // Private
 void Oscillator::updatePhaseIncrement()
 {
-    phaseIncrement = tune * frequency / sampleRate;
+    phaseIncrement = tune * transpose * frequency / sampleRate;
 }

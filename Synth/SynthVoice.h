@@ -18,11 +18,13 @@ public:
     void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
     void stopNote(float velocity, bool allowTailOff) override;
 
-    // Setters
+    // Properties
     void alwaysProcess();
 
 private:
+    juce::Random random;
     Oscillator osc1[2];
+    Oscillator osc2[2];
 
     float frequency = 440.0f;
     float velocity = 0.0f;
@@ -30,13 +32,19 @@ private:
     int totalChannels = 2;
 
     ParameterContext& params;
-    int lastWavetable = 0;
-    int currentWavetable = 0;
 
     // Wavetable IDs loaders
     int lastWavetableIDOsc1 = -1;
+    int lastWavetableIDOsc2 = -1;
 
     // Wavetables
     Wavetable::Table osc1Wavetable;
+    Wavetable::Table osc2Wavetable;
+
     int lastWaveFrameOsc1 = -1;
+    int lastWaveFrameOsc2 = -1;
+
+    // Osc always processor
+    void osc1Processor();
+    void osc2Processor();
 };

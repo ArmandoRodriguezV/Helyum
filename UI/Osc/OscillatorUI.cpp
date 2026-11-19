@@ -4,20 +4,27 @@
 
 OscillatorUI::OscillatorUI(
     ParameterContext& state,
+    juce::String enableId,
     juce::String gainId, juce::String panId,
-    juce::String waveFrameId, juce::String waveSelectorId,
-    juce::String tuneId
+    juce::String waveFrameId, const juce::String &waveSelectorId,
+    juce::String transposeId, juce::String tuneId,
+    juce::String phaseMultId
     )
     : state(state), waveSelectorId(waveSelectorId)
 {
+    addAndMakeVisible(label);
+
+    addAndMakeVisible(enable);
+    enableAttachment = std::make_unique<ButtonAttachment>(state.apvts(), enableId, enable);
+
     addAndMakeVisible(gain);
-    gainAttachment = std::make_unique<SliderAttachment>(state.apvts(), gainId, gain);
+    gainAttachment = std::make_unique<SliderAttachment>(state.apvts(), gainId, gain.getSlider());
 
     addAndMakeVisible(pan);
-    panAttachment = std::make_unique<SliderAttachment>(state.apvts(), panId, pan);
+    panAttachment = std::make_unique<SliderAttachment>(state.apvts(), panId, pan.getSlider());
 
-    waveFrameAttachment = std::make_unique<SliderAttachment>(state.apvts(), waveFrameId, waveFrame);
     addAndMakeVisible(waveFrame);
+    waveFrameAttachment = std::make_unique<SliderAttachment>(state.apvts(), waveFrameId, waveFrame.getSlider());
 
     addAndMakeVisible(wavetables);
     wavetables.onClick = [this] ()
@@ -27,19 +34,84 @@ OscillatorUI::OscillatorUI(
 
     addAndMakeVisible(wV);
 
+    addAndMakeVisible(transpose);
+    transposeAttachment = std::make_unique<SliderAttachment>(state.apvts(), transposeId, transpose.getSlider());
+
     addAndMakeVisible(tune);
-    tuneAttachment = std::make_unique<SliderAttachment>(state.apvts(), tuneId, tune);
+    tuneAttachment = std::make_unique<SliderAttachment>(state.apvts(), tuneId, tune.getSlider());
+
+    addAndMakeVisible(phaseMult);
+    phaseMultAttachment = std::make_unique<SliderAttachment>(state.apvts(), phaseMultId, phaseMult.getSlider());
 }
 
 OscillatorUI::~OscillatorUI()
 {
+    enable.setLookAndFeel(nullptr);
+    gain.setLookAndFeel(nullptr);
+    pan.setLookAndFeel(nullptr);
+    wavetables.setLookAndFeel(nullptr);
+    transpose.setLookAndFeel(nullptr);
+    tune.setLookAndFeel(nullptr);
+    phaseMult.setLookAndFeel(nullptr);
 
+    // Menus
+    menu.setLookAndFeel(nullptr);
+    basicW.setLookAndFeel(nullptr);
+    digitalW.setLookAndFeel(nullptr);
+    complexW.setLookAndFeel(nullptr);
 }
 
 void OscillatorUI::paint(juce::Graphics& g)
 {
+    const float w = getWidth();
+    const float h = getHeight();
     g.fillAll(Palette::DARK_1);
-    wV.setFrame(Wavetable::wavetableOsc1);
+
+    gain.setValue(juce::String(std::trunc(gain.getSlider().getValue() * 10.0f) / 10.0f) + "Db");
+    pan.setValue(juce::String(std::trunc(pan.getSlider().getValue() * 10.0f) / 10.0f));
+    waveFrame.setValue(juce::String(static_cast<int>(waveFrame.getSlider().getValue() * 100)) + "%");
+    transpose.setValue(juce::String(transpose.getSlider().getValue()));
+    tune.setValue(juce::String(tune.getSlider().getValue()));
+    phaseMult.setValue(juce::String(static_cast<int>(phaseMult.getSlider().getValue() * 360)) + "°");
+
+    g.setColour(Palette::DARK_2);
+    g.fillRoundedRectangle(10.0f, 10.0f, w - 20.0f, h - 20.0f, 10);
+}
+
+void OscillatorUI::paintOverChildren(juce::Graphics& g)
+{
+    if (enable.getToggleState())
+        return;
+
+    const auto bounds = getLocalBounds().toFloat();
+    const float w = bounds.getWidth();
+    const float h = bounds.getHeight();
+
+    constexpr float btnSize = 30.0f;
+    constexpr float pad = 10.0f;
+
+    auto hole = juce::Rectangle<float>(w - btnSize - (pad * 2), h - btnSize - (pad * 2), btnSize + (pad * 2), btnSize + (pad * 2));
+
+    juce::Path overlay;
+    overlay.addRectangle(bounds);
+    overlay.addRectangle(hole);
+
+    g.setColour(Palette::DARK_1.withAlpha(0.5f));
+    g.fillPath(overlay, juce::AffineTransform());
+
+    g.saveState();
+    g.reduceClipRegion(getLocalBounds());
+    g.excludeClipRegion(hole.toNearestInt());
+
+    g.setColour(Palette::LIGHT_1.withAlpha(0.25f));
+
+    constexpr float spacing = 18.0f;
+    constexpr float thickness = 5.0f;
+
+    for (float x = -h; x < w + h; x += spacing)
+        g.drawLine(x, h, x + h, 0.0f, thickness);
+
+    g.restoreState();
 }
 
 void OscillatorUI::resized()
@@ -62,7 +134,7 @@ void OscillatorUI::resized()
         juce::Grid::TrackInfo(juce::Grid::Fr(1)),
     }; // 6
 
-    grid.setGap(juce::Grid::Px(10));
+    grid.setGap(juce::Grid::Px(5));
 
     grid.items = {
         juce::GridItem(gain).withArea(4, 1, 6, 1),
@@ -70,33 +142,66 @@ void OscillatorUI::resized()
         juce::GridItem(waveFrame).withArea(4, 3, 6, 3),
         juce::GridItem(wavetables).withArea(1, 4, 1, 7),
         juce::GridItem(wV).withArea(1, 1, 4, 4),
-        juce::GridItem(tune).withArea(2, 4, 2, 7)
+        juce::GridItem(transpose).withArea(2, 4, 4, 4),
+        juce::GridItem(tune).withArea(2, 5, 4, 5),
+        juce::GridItem(phaseMult).withArea(2, 6, 4, 6),
+        juce::GridItem(label).withArea(4, 4, 6, 6),
     };
 
     grid.performLayout(getLocalBounds().reduced(10));
 }
 
+void OscillatorUI::setTitle(const juce::String val) {
+    label.setText(val, juce::dontSendNotification);
+}
+
 void OscillatorUI::preOptions()
 {
-    gain.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    gain.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, false);
+    label.setColour(juce::Label::textColourId, Palette::LIGHT_3);
+    label.setFont(Font::get(24.0f));
+    label.setJustificationType(juce::Justification::centred);
 
-    pan.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    pan.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, false);
+    const auto w = getWidth();
+    const auto h = getHeight();
+    constexpr auto btnSize = 30.0f;
+    constexpr auto pad = 10.0f;
+    enable.setBounds(w - btnSize - pad, h - btnSize - pad, btnSize, btnSize);
+    enable.setLookAndFeel(&s1);
 
-    waveFrame.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    waveFrame.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, false);
+    gain.setTitle("Gain");
+    gain.setLookAndFeel(&s1);
 
-    tune.setSliderStyle(juce::Slider::LinearHorizontal);
-    tune.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, false);
+    pan.setTitle("Pan");
+    pan.setLookAndFeel(&s2);
+
+    waveFrame.setTitle("Wavetable");
+    waveFrame.setInverseColor(true);
+    waveFrame.setLookAndFeel(&iS1);
+
+    transpose.setTitle("Transpose");
+    transpose.setLookAndFeel(&s2);
+
+    tune.setTitle("Tune");
+    tune.setLookAndFeel(&s2);
+
+    wavetables.setLookAndFeel(&s1);
+
+    phaseMult.setTitle("Phase");
+    phaseMult.setInverseColor(true);
+    phaseMult.setLookAndFeel(&iS1);
+
+    menu.setLookAndFeel(&s1);
+    basicW.setLookAndFeel(&s1);
+    digitalW.setLookAndFeel(&s1);
+    complexW.setLookAndFeel(&s1);
 }
 
 void OscillatorUI::createWavetableMenu()
 {
-    juce::PopupMenu menu;
-    juce::PopupMenu basic;
-    juce::PopupMenu digital;
-    juce::PopupMenu complex;
+    menu.clear();
+    basicW.clear();
+    digitalW.clear();
+    complexW.clear();
 
     for (int i = 0; i < WavetableLibrary::allCount; i++)
     {
@@ -104,18 +209,18 @@ void OscillatorUI::createWavetableMenu()
         const int menuId = wt->id + 1;
 
         if (wt->category == Category::Basic)
-            basic.addItem(menuId, wt->name);
+            basicW.addItem(menuId, wt->name);
 
         if (wt->category == Category::Digital)
-            digital.addItem(menuId, wt->name);
+            digitalW.addItem(menuId, wt->name);
 
         if (wt->category == Category::Complex)
-            complex.addItem(menuId, wt->name);
+            complexW.addItem(menuId, wt->name);
     }
 
-    menu.addSubMenu("Basic", basic);
-    menu.addSubMenu("Digital", digital);
-    menu.addSubMenu("Complex", complex);
+    menu.addSubMenu("Basic", basicW);
+    menu.addSubMenu("Digital", digitalW);
+    menu.addSubMenu("Complex", complexW);
 
     menu.showMenuAsync(
         juce::PopupMenu::Options().withTargetComponent(&wavetables),
@@ -143,4 +248,10 @@ void OscillatorUI::createWavetableMenu()
             }
         }
     );
+}
+
+void OscillatorUI::setWaveform(const Wavetable::Frame& frame)
+{
+    wV.setFrame(frame);
+    repaint();
 }

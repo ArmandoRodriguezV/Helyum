@@ -16,7 +16,7 @@ void WavetableViewer::paint(juce::Graphics& g)
     const float w = getWidth();
     const float halfH = h * 0.5f;
 
-    g.setColour(Palette::DARK_2);
+    g.setColour(Palette::DARK_3);
     g.fillRoundedRectangle(0, 0, w, h, 10);
 
     if (frame.size() < 2)
@@ -43,10 +43,10 @@ void WavetableViewer::paint(juce::Graphics& g)
     path.lineTo(w, halfH);
     path.closeSubPath();
 
-    g.setColour(Palette::BLUE_1);
+    g.setColour(Palette::LIGHT_1);
     g.strokePath(path, juce::PathStrokeType(1.5f));
 
-    g.setColour(Palette::BLUE_2.withAlpha(0.35f));
+    g.setColour(Palette::LIGHT_3.withAlpha(0.35f));
     g.fillPath(path);
 }
 

@@ -16,7 +16,7 @@ public:
     void timerCallback() override;
 
 private:
-    OscillatorUI osc1;
+    OscillatorUI osc1, osc2;
     HelyumAudioProcessor& audioProcessor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HelyumAudioProcessorEditor)

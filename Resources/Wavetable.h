@@ -10,6 +10,7 @@ public:
     using Table = std::vector<Frame>;
 
     inline static Frame wavetableOsc1;
+    inline static Frame wavetableOsc2;
 
     static Table loadWavetable(const void* data, size_t dataSize)
     {

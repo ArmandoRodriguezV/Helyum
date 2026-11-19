@@ -16,21 +16,24 @@ public:
     void setGain(const float g);
     void setWaveFrame(const float wf);
     void setWavetable(const Wavetable::Table &table);
+    void setTranspose(const float tpse);
     void setTune(const float tn);
+    void setPhase(const float phs);
 
     // Getters
     int getFrame() const { return waveFrame; }
 
 private:
-    juce::Random random;
     double sampleRate = 44100.0;
 
     float frequency = 440.0;
     float gain = 0.5f;
 
     float phase = 0.0f;
+    float initialPhase = 0.0f;
     float phaseIncrement = 0.0f;
 
+    float transpose = 1.0f;
     float tune = 1.0f;
 
     Wavetable::Table wavetable;
