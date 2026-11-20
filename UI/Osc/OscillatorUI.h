@@ -9,6 +9,7 @@
 #include "../Styles/Styles_1.h"
 #include "../Styles/Styles_2.h"
 #include "../Styles/IStyles_1.h"
+#include "../Styles/IStyles_2.h"
 #include "../Components/HSliderRotary.h"
 
 class OscillatorUI: public juce::Component
@@ -37,14 +38,18 @@ private:
     using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     juce::TextButton wavetables { "Wavetable" };
+    juce::TextButton effects { "None" };
+
     juce::Label label;
     juce::ToggleButton enable;
 
     HSliderRotary gain, pan,
         waveFrame, transpose, tune,
-        phaseMult;
+        phaseMult, effectPor;
 
     juce::PopupMenu menu, basicW, digitalW, complexW;
+
+    juce::PopupMenu effectMenu;
 
     std::unique_ptr<SliderAttachment>
         gainAttachment, panAttachment,
@@ -57,9 +62,12 @@ private:
 
     void preOptions();
     void createWavetableMenu();
+    void createEffectMenu();
+
     WavetableViewer wV;
 
     Style_1 s1;
     Style_2 s2;
     IStyle_1 iS1;
+    IStyle_2 iS2;
 };

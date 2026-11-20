@@ -9,7 +9,7 @@ HSliderRotary::HSliderRotary()
 
 HSliderRotary::~HSliderRotary()
 {
-    slider.setLookAndFeel(nullptr);
+
 }
 
 void HSliderRotary::paint(juce::Graphics &g)

@@ -140,6 +140,9 @@ public:
         juce::Colour backgroundColor;
         juce::Colour iconColor;
 
+        if (btn.isMouseOver())
+            btn.setMouseCursor(juce::MouseCursor::PointingHandCursor);
+
         if (!toggled)
         {
             backgroundColor = Palette::DARK_3;
@@ -158,13 +161,15 @@ public:
         const float rad = size * 0.5f;
         const float cx = bounds.getCentreX() - (rad * 0.5f);
         const float cy = bounds.getCentreY() - (rad * 0.5f);
+        const float initLine = bounds.getHeight() * 0.2f;
+        const float thick = size * 0.0625;
 
         g.setColour(iconColor);
         juce::Path p;
         p.addArc(cx, cy, rad, rad, Constants::TAU * 0.125f, Constants::TAU * 0.875f, true);
-        g.strokePath(p, juce::PathStrokeType(3.0f));
+        g.strokePath(p, juce::PathStrokeType(thick));
 
-        g.drawLine(size * 0.5f, 5.0f, size * 0.5f, size * 0.5f, 3.0f);
+        g.drawLine(bounds.getWidth() * 0.5f, initLine, bounds.getWidth() * 0.5f, size * 0.5f, thick);
 
     }
 

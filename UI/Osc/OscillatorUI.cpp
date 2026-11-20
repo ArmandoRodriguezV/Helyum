@@ -42,6 +42,14 @@ OscillatorUI::OscillatorUI(
 
     addAndMakeVisible(phaseMult);
     phaseMultAttachment = std::make_unique<SliderAttachment>(state.apvts(), phaseMultId, phaseMult.getSlider());
+
+    // Effects
+    addAndMakeVisible(effects);
+    effects.onClick = [this] () {
+        createEffectMenu();
+    };
+
+    addAndMakeVisible(effectPor);
 }
 
 OscillatorUI::~OscillatorUI()
@@ -53,6 +61,9 @@ OscillatorUI::~OscillatorUI()
     transpose.setLookAndFeel(nullptr);
     tune.setLookAndFeel(nullptr);
     phaseMult.setLookAndFeel(nullptr);
+    effects.setLookAndFeel(nullptr);
+    effectPor.setLookAndFeel(nullptr);
+    effectMenu.setLookAndFeel(nullptr);
 
     // Menus
     menu.setLookAndFeel(nullptr);
@@ -76,6 +87,17 @@ void OscillatorUI::paint(juce::Graphics& g)
 
     g.setColour(Palette::DARK_2);
     g.fillRoundedRectangle(10.0f, 10.0f, w - 20.0f, h - 20.0f, 10);
+
+    const auto gainBounds = gain.getBounds().toFloat();
+    const auto panBounds = pan.getBounds().toFloat();
+
+    g.setColour(Palette::LIGHT_2);
+    g.fillRoundedRectangle(gainBounds.getUnion(panBounds), 10);
+
+    const auto effectBounds = effectPor.getBounds().toFloat();
+    const auto labelBounds = label.getBounds().toFloat();
+
+    g.fillRoundedRectangle(effectBounds.getUnion(labelBounds), 10);
 }
 
 void OscillatorUI::paintOverChildren(juce::Graphics& g)
@@ -90,7 +112,7 @@ void OscillatorUI::paintOverChildren(juce::Graphics& g)
     constexpr float btnSize = 30.0f;
     constexpr float pad = 10.0f;
 
-    auto hole = juce::Rectangle<float>(w - btnSize - (pad * 2), h - btnSize - (pad * 2), btnSize + (pad * 2), btnSize + (pad * 2));
+    auto hole = enable.getBounds().toFloat().expanded(5);
 
     juce::Path overlay;
     overlay.addRectangle(bounds);
@@ -137,6 +159,7 @@ void OscillatorUI::resized()
     grid.setGap(juce::Grid::Px(5));
 
     grid.items = {
+        juce::GridItem(enable).withArea(4, 4, 6, 4),
         juce::GridItem(gain).withArea(4, 1, 6, 1),
         juce::GridItem(pan).withArea(4, 2, 6, 2),
         juce::GridItem(waveFrame).withArea(4, 3, 6, 3),
@@ -145,7 +168,9 @@ void OscillatorUI::resized()
         juce::GridItem(transpose).withArea(2, 4, 4, 4),
         juce::GridItem(tune).withArea(2, 5, 4, 5),
         juce::GridItem(phaseMult).withArea(2, 6, 4, 6),
-        juce::GridItem(label).withArea(4, 4, 6, 6),
+        juce::GridItem(label).withArea(4, 6),
+        juce::GridItem(effects).withArea(5, 6),
+        juce::GridItem(effectPor).withArea(4, 5, 6, 5),
     };
 
     grid.performLayout(getLocalBounds().reduced(10));
@@ -157,26 +182,22 @@ void OscillatorUI::setTitle(const juce::String val) {
 
 void OscillatorUI::preOptions()
 {
-    label.setColour(juce::Label::textColourId, Palette::LIGHT_3);
+    label.setColour(juce::Label::textColourId, Palette::DARK_3);
     label.setFont(Font::get(24.0f));
     label.setJustificationType(juce::Justification::centred);
 
-    const auto w = getWidth();
-    const auto h = getHeight();
-    constexpr auto btnSize = 30.0f;
-    constexpr auto pad = 10.0f;
-    enable.setBounds(w - btnSize - pad, h - btnSize - pad, btnSize, btnSize);
     enable.setLookAndFeel(&s1);
 
     gain.setTitle("Gain");
-    gain.setLookAndFeel(&s1);
+    gain.setInverseColor(true);
+    gain.setLookAndFeel(&iS1);
 
     pan.setTitle("Pan");
-    pan.setLookAndFeel(&s2);
+    pan.setInverseColor(true);
+    pan.setLookAndFeel(&iS2);
 
     waveFrame.setTitle("Wavetable");
-    waveFrame.setInverseColor(true);
-    waveFrame.setLookAndFeel(&iS1);
+    waveFrame.setLookAndFeel(&s1);
 
     transpose.setTitle("Transpose");
     transpose.setLookAndFeel(&s2);
@@ -194,6 +215,13 @@ void OscillatorUI::preOptions()
     basicW.setLookAndFeel(&s1);
     digitalW.setLookAndFeel(&s1);
     complexW.setLookAndFeel(&s1);
+    effectMenu.setLookAndFeel(&s1);
+
+    effects.setLookAndFeel(&iS1);
+
+    effectPor.setTitle("Effect");
+    effectPor.setInverseColor(true);
+    effectPor.setLookAndFeel(&iS1);
 }
 
 void OscillatorUI::createWavetableMenu()
@@ -249,6 +277,21 @@ void OscillatorUI::createWavetableMenu()
         }
     );
 }
+
+void OscillatorUI::createEffectMenu()
+{
+    effectMenu.clear();
+    effectMenu.addItem(1, "FM from");
+    effectMenu.addItem(2, "AM from");
+
+    effectMenu.showMenuAsync(
+        juce::PopupMenu::Options().withTargetComponent(&effects),
+        [this] (const int result) {
+
+        }
+    );
+}
+
 
 void OscillatorUI::setWaveform(const Wavetable::Frame& frame)
 {

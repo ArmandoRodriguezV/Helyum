@@ -15,18 +15,20 @@ bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound)
 void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
 {
     juce::SynthesiserVoice::setCurrentPlaybackSampleRate(newRate);
-    for (int ch = 0; ch < 2; ch++)
+    const auto wt1 = WavetableLibrary::find(0);
+    const auto wt2 = WavetableLibrary::find(0);
+
+    if (wt1 == nullptr || wt2 == nullptr)
+        return;
+
+    osc1Wavetable = Wavetable::loadWavetable(wt1->data, wt1->size);
+    osc2Wavetable = Wavetable::loadWavetable(wt2->data, wt2->size);
+
+    for (int ch = 0; ch < 2; ++ch)
     {
         osc1[ch].prepare(newRate);
         osc2[ch].prepare(newRate);
-        // Load wt
-
-        const auto wt1 = WavetableLibrary::find(0);
-        osc1Wavetable = Wavetable::loadWavetable(wt1->data, wt1->size);
         osc1[ch].setWavetable(osc1Wavetable);
-
-        const auto wt2 = WavetableLibrary::find(0);
-        osc2Wavetable = Wavetable::loadWavetable(wt2->data, wt2->size);
         osc2[ch].setWavetable(osc2Wavetable);
     }
 
@@ -47,9 +49,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     const bool enableOsc1 = params.get(ParameterIDs::OSC1_ENABLE);
     const bool enableOsc2 = params.get(ParameterIDs::OSC2_ENABLE);
 
-    totalChannels = outputBuffer.getNumChannels();
-
-    for (int ch = 0; ch < totalChannels; ++ch)
+    for (int ch = 0; ch < 2; ++ch)
     {
         auto* data = outputBuffer.getWritePointer(ch);
 
@@ -177,7 +177,6 @@ void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
     clearCurrentNote();
 }
-
 void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition)
 {
     this->velocity = velocity;

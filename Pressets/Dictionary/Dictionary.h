@@ -21,5 +21,5 @@ namespace WavetableLibrary
 {
   extern const WaveTable all[];
   extern const int allCount;
-  const WaveTable* find(int id);
+  const WaveTable* find(const int id);
 }

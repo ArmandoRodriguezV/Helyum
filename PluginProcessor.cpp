@@ -144,11 +144,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
+    // Osc 1
     juce::StringArray waveChoices;
     for (int i = 0; i < WavetableLibrary::allCount; i++)
         waveChoices.add(WavetableLibrary::all[i].name);
 
-    // Osc 1
     params.push_back(std::make_unique<juce::AudioParameterBool>(ParameterIDs::OSC1_ENABLE, "Osc 1 Active", true));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_VOLUME, "Osc 1 Volume", -60.0f, 6.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC1_PAN, "Osc 1 Pan", -1.0f, 1.0f, 0.0f));
@@ -167,6 +167,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
     params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC2_TRANSPOSE, "Osc 2 Transpose", -48, 48, 0));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_TUNE, "Osc 2 Tune", -1, 1, 0));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_PHASE_MULT, "Osc 1 Phase", 0.0f, 1.0f, 1.0f));
+
+    // Filter
+    juce::StringArray filterChoices;
+    for (int i = 0; i < Filter::allCount; i++)
+        filterChoices.add(Filter::all[i].name);
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(ParameterIDs::FILTER_CHOOSE, "Filter", filterChoices, 0));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_GAIN, "Filter gain", -24.0f, 24.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_FREQ, "Filter frequency", 20.0f, 20000.0f, 440.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_Q, "Filter Q", 0.1f, 20.0f, 10.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_RESONANCE, "Filter resonance", 0.0f, 1.0f, 0.0f));
+
 
     return { params.begin(), params.end() };
 }

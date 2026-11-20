@@ -7,6 +7,7 @@
 #include "Resources/ParameterContext.h"
 #include "Resources/ParameterIDs.h"
 #include "Pressets/Dictionary/Dictionary.h"
+#include "Pressets/Filter/Filter.h"
 
 class HelyumAudioProcessor  : public juce::AudioProcessor
 {
