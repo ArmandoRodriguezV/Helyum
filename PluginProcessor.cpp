@@ -1,11 +1,3 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "Resources/ParameterIDs.h"
@@ -93,7 +85,8 @@ void HelyumAudioProcessor::changeProgramName (int index, const juce::String& new
 //==============================================================================
 void HelyumAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    synth.prepare(sampleRate);
+    synth.prepare(sampleRate, samplesPerBlock);
+    filter.prepare(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
 }
 
 void HelyumAudioProcessor::releaseResources()
@@ -138,6 +131,11 @@ void HelyumAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce:
         buffer.clear (i, 0, buffer.getNumSamples());
 
     synth.process(buffer, midiMessages);
+
+    filter.setFrequency(*apvts.getRawParameterValue(ParameterIDs::FILTER_FREQ));
+    filter.setQ(*apvts.getRawParameterValue(ParameterIDs::FILTER_Q));
+
+    filter.process(buffer);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parameterLayout()
@@ -174,10 +172,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
         filterChoices.add(Filter::all[i].name);
     params.push_back(std::make_unique<juce::AudioParameterChoice>(ParameterIDs::FILTER_CHOOSE, "Filter", filterChoices, 0));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_GAIN, "Filter gain", -24.0f, 24.0f, 0.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_FREQ, "Filter frequency", 20.0f, 20000.0f, 440.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_Q, "Filter Q", 0.1f, 20.0f, 10.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_FREQ, "Filter frequency", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.25f), 440.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_Q, "Filter Q", 0.707f, 5.0f, 0.707f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_RESONANCE, "Filter resonance", 0.0f, 1.0f, 0.0f));
-
 
     return { params.begin(), params.end() };
 }

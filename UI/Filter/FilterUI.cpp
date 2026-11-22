@@ -1,6 +1,7 @@
 #include "FilterUI.h"
 
 FilterUI::FilterUI(ParameterContext& state)
+    : state(state)
 {
     addAndMakeVisible(filterSelect);
 
@@ -43,8 +44,8 @@ void FilterUI::paint(juce::Graphics& g)
     g.setColour(Palette::DARK_2);
     g.fillRoundedRectangle(getLocalBounds().toFloat().reduced(10), 10);
 
-    gain.setValue(juce::String(gain.getSlider().getValue()) + "Db");
-    freq.setValue(juce::String(freq.getSlider().getValue()));
+    gain.setValue(juce::String(static_cast<int>(gain.getSlider().getValue())) + "Db");
+    freq.setValue(juce::String(static_cast<int>(freq.getSlider().getValue())) + "Hz");
     qua.setValue(juce::String(qua.getSlider().getValue()) + "Db");
     res.setValue(juce::String(static_cast<int>(res.getSlider().getValue() * 100)) + "%");
 }
@@ -130,18 +131,16 @@ void FilterUI::loadMenus()
     filterMenu.showMenuAsync(
         juce::PopupMenu::Options().withTargetComponent(&filterSelect),
         [this] (const int index) {
+            const int filterId = index - 1;
+            const auto filterToRepo = Filter::getFilterById(filterId);
 
+            const auto filterChoose = state.apvts().getParameter(ParameterIDs::FILTER_CHOOSE);
+            filterChoose->setValueNotifyingHost(filterChoose->convertTo0to1(filterId));
+
+            filterSelect.setButtonText(filterToRepo->name);
         }
     );
 }
-
-
-
-
-
-
-
-
 
 
 

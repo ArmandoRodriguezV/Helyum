@@ -27,10 +27,7 @@ OscillatorUI::OscillatorUI(
     waveFrameAttachment = std::make_unique<SliderAttachment>(state.apvts(), waveFrameId, waveFrame.getSlider());
 
     addAndMakeVisible(wavetables);
-    wavetables.onClick = [this] ()
-    {
-        createWavetableMenu();
-    };
+    wavetables.onClick = [this] () { createWavetableMenu(); };
 
     addAndMakeVisible(wV);
 
@@ -45,9 +42,7 @@ OscillatorUI::OscillatorUI(
 
     // Effects
     addAndMakeVisible(effects);
-    effects.onClick = [this] () {
-        createEffectMenu();
-    };
+    effects.onClick = [this] () { createEffectMenu(); };
 
     addAndMakeVisible(effectPor);
 }
@@ -224,8 +219,7 @@ void OscillatorUI::preOptions()
     effectPor.setLookAndFeel(&iS1);
 }
 
-void OscillatorUI::createWavetableMenu()
-{
+void OscillatorUI::createWavetableMenu() {
     menu.clear();
     basicW.clear();
     digitalW.clear();

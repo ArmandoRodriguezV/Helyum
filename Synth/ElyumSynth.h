@@ -9,7 +9,7 @@ class ElyumSynth
 public:
     ElyumSynth(ParameterContext& context);
     ~ElyumSynth();
-    void prepare(double sP);
+    void prepare(const double sP,const int samplesPerBlock);
     void process(juce::AudioBuffer<float>& buffer, const juce::MidiBuffer& midiMessages);
 
 private:

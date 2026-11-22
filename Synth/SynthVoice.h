@@ -1,7 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "SynthSound.h"
-#include "../DSP/Oscillator.h"
+#include "../DSP/OscillatorProcessor/Oscillator.h"
 #include "../Resources/ParameterContext.h"
 #include "../Resources/ParameterIDs.h"
 #include "../Resources/Constants.h"

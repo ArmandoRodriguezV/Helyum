@@ -3,8 +3,8 @@
 #include "../../Pressets/Filter/Filter.h"
 #include "../../Resources/ParameterContext.h"
 #include "../../Resources/ParameterIDs.h"
-#include "../Styles/IStyles_1.h"
 #include "../Components/HSliderRotary.h"
+#include "../Styles/IStyles_1.h"
 #include "../Styles/IStyles_2.h"
 #include "../Styles/Styles_1.h"
 #include "../Styles/Styles_2.h"
@@ -18,7 +18,14 @@ public:
     void paint(juce::Graphics &g) override;
     void resized() override;
 
+    void setViewerData(
+        const double sampleRate,
+        const juce::dsp::IIR::Coefficients<float>& newCoefficients,
+        const juce::dsp::IIR::Coefficients<float>& newResonanceCoefficients
+    );
+
 private:
+    ParameterContext& state;
     juce::Grid grid;
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 

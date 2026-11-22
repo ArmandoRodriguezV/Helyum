@@ -18,8 +18,9 @@ ElyumSynth::~ElyumSynth()
 {
 }
 
-void ElyumSynth::prepare(double sP)
+void ElyumSynth::prepare(const double sP, const int samplesPerBlock)
 {
+    synth.setCurrentPlaybackSampleRate(sP);
     for (auto voice : voices)
     {
         voice->setCurrentPlaybackSampleRate(sP);

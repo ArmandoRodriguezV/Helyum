@@ -8,6 +8,7 @@
 #include "Resources/ParameterIDs.h"
 #include "Pressets/Dictionary/Dictionary.h"
 #include "Pressets/Filter/Filter.h"
+#include "DSP/FilterCore/FilterCore.h"
 
 class HelyumAudioProcessor  : public juce::AudioProcessor
 {
@@ -55,6 +56,7 @@ private:
     juce::AudioProcessorValueTreeState::ParameterLayout parameterLayout();
 
     ElyumSynth synth;
+    FilterCore filter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HelyumAudioProcessor)
 };

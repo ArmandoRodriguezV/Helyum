@@ -20,7 +20,7 @@ HelyumAudioProcessorEditor::HelyumAudioProcessorEditor (HelyumAudioProcessor& p)
         ),
     filter(p.context)
 {
-    startTimerHz(60);
+    startTimerHz(30);
     addAndMakeVisible(osc1);
     addAndMakeVisible(osc2);
     addAndMakeVisible(filter);
@@ -67,5 +67,4 @@ void HelyumAudioProcessorEditor::timerCallback()
 {
     osc1.setWaveform(Wavetable::wavetableOsc1);
     osc2.setWaveform(Wavetable::wavetableOsc2);
-    filter.repaint();
 }

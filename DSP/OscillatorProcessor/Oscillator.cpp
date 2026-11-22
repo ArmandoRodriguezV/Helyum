@@ -1,6 +1,6 @@
 #include "Oscillator.h"
-#include "../Resources/Constants.h"
-#include "../Resources/Wavetable.h"
+#include "../../Resources/Constants.h"
+#include "../../Resources/Wavetable.h"
 
 void Oscillator::process(float* data, int numSamples)
 {

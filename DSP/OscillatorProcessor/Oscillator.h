@@ -1,7 +1,7 @@
 #pragma once
 #include <JuceHeader.h>
-#include "../Pressets/Dictionary/Dictionary.h"
-#include "../Resources/Wavetable.h"
+#include "../../Pressets/Dictionary/Dictionary.h"
+#include "../../Resources/Wavetable.h"
 
 class Oscillator
 {
