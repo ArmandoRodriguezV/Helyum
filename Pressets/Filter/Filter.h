@@ -13,7 +13,6 @@ struct FilterInterface
     int id;
     const char* name;
     FilterCategory category;
-    int order;
 };
 
 namespace Filter

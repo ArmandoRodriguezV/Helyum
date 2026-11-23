@@ -3,13 +3,9 @@
 namespace Filter
 {
     const FilterInterface all[] = {
-        {0, "LowPass 6" , FilterCategory::LowPass, 1},
-        {1, "LowPass 12", FilterCategory::LowPass, 2},
-        {2, "LowPass 24", FilterCategory::LowPass, 4},
-        {3, "HighPass 6" , FilterCategory::HighPass, 1},
-        {4, "HighPass 12", FilterCategory::HighPass, 2},
-        {5, "HighPass 24", FilterCategory::HighPass, 4},
-        {6, "Notch" , FilterCategory::Notch, 1},
+        {0, "LowPass" , FilterCategory::LowPass},
+        {1, "HighPass" , FilterCategory::HighPass},
+        {2, "Notch" , FilterCategory::Notch},
     };
 
     const int allCount = std::size(all);

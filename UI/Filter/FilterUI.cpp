@@ -19,8 +19,12 @@ FilterUI::FilterUI(ParameterContext& state)
     addAndMakeVisible(qua);
     quaA = std::make_unique<SliderAttachment>(state.apvts(), ParameterIDs::FILTER_Q, qua.getSlider());
 
-    addAndMakeVisible(res);
-    resA = std::make_unique<SliderAttachment>(state.apvts(), ParameterIDs::FILTER_RESONANCE, res.getSlider());
+    addAndMakeVisible(active);
+    activeAttachment = std::make_unique<ButtonAttachment>(state.apvts(), ParameterIDs::FILTER_ACTIVE, active);
+
+    addAndMakeVisible(graph);
+
+    active.onStateChange = [this] () { repaint(); };
 }
 
 FilterUI::~FilterUI()
@@ -34,7 +38,7 @@ FilterUI::~FilterUI()
     gain.setLookAndFeel(nullptr);
     freq.setLookAndFeel(nullptr);
     qua.setLookAndFeel(nullptr);
-    res.setLookAndFeel(nullptr);
+    active.setLookAndFeel(nullptr);
 }
 
 void FilterUI::paint(juce::Graphics& g)
@@ -47,7 +51,43 @@ void FilterUI::paint(juce::Graphics& g)
     gain.setValue(juce::String(static_cast<int>(gain.getSlider().getValue())) + "Db");
     freq.setValue(juce::String(static_cast<int>(freq.getSlider().getValue())) + "Hz");
     qua.setValue(juce::String(qua.getSlider().getValue()) + "Db");
-    res.setValue(juce::String(static_cast<int>(res.getSlider().getValue() * 100)) + "%");
+    graph.repaint();
+}
+
+void FilterUI::paintOverChildren(juce::Graphics& g)
+{
+    if (active.getToggleState())
+        return;
+
+    const auto bounds = getLocalBounds().toFloat();
+    const float w = bounds.getWidth();
+    const float h = bounds.getHeight();
+
+    constexpr float btnSize = 30.0f;
+    constexpr float pad = 10.0f;
+
+    auto hole = active.getBounds().toFloat().expanded(5);
+
+    juce::Path overlay;
+    overlay.addRectangle(bounds);
+    overlay.addRectangle(hole);
+
+    g.setColour(Palette::DARK_1.withAlpha(0.5f));
+    g.fillPath(overlay, juce::AffineTransform());
+
+    g.saveState();
+    g.reduceClipRegion(getLocalBounds());
+    g.excludeClipRegion(hole.toNearestInt());
+
+    g.setColour(Palette::LIGHT_1.withAlpha(0.25f));
+
+    constexpr float spacing = 18.0f;
+    constexpr float thickness = 5.0f;
+
+    for (float x = -h; x < w + h; x += spacing)
+        g.drawLine(x, h, x + h, 0.0f, thickness);
+
+    g.restoreState();
 }
 
 void FilterUI::resized()
@@ -76,7 +116,8 @@ void FilterUI::resized()
         juce::GridItem(gain).withArea(2, 4, 4, 4),
         juce::GridItem(freq).withArea(2, 5, 4, 5),
         juce::GridItem(qua).withArea(4, 4, 6, 4),
-        juce::GridItem(res).withArea(4, 5, 6, 5),
+        juce::GridItem(active).withArea(4, 5, 6, 5),
+        juce::GridItem(graph).withArea(1, 1, 6, 4),
     };
 
     grid.performLayout(getLocalBounds().reduced(10));
@@ -100,9 +141,7 @@ void FilterUI::configureInputs()
     qua.setInverseColor(true);
     qua.setLookAndFeel(&iS1);
 
-    res.setTitle("Resonance");
-    res.setInverseColor(true);
-    res.setLookAndFeel(&iS1);
+    active.setLookAndFeel(&iS1);
 }
 
 void FilterUI::loadMenus()

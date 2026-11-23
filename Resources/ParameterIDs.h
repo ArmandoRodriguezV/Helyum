@@ -22,10 +22,10 @@ struct ParameterIDs {
     static constexpr const char* OSC2_PHASE_MULT = "OCS2_PHASE_MULT";
 
     // Filter
+    static constexpr const char* FILTER_ACTIVE = "FILTER_ACTIVE";
     static constexpr const char* FILTER_CHOOSE = "FILTER_CHOOSE";
     static constexpr const char* FILTER_FREQ = "FILTER_FREQ";
     static constexpr const char* FILTER_Q = "FILTER_Q";
-    static constexpr const char* FILTER_RESONANCE = "FILTER_RESONANCE";
     static constexpr const char* FILTER_GAIN = "FILTER_GAIN";
 
 };

@@ -15,7 +15,8 @@ HelyumAudioProcessor::HelyumAudioProcessor()
                        ),
     apvts(*this, nullptr, "PARAMS", parameterLayout()),
     context(apvts),
-    synth(context)
+    synth(context),
+    filter(context)
 #endif
 {
 }
@@ -86,7 +87,7 @@ void HelyumAudioProcessor::changeProgramName (int index, const juce::String& new
 void HelyumAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     synth.prepare(sampleRate, samplesPerBlock);
-    filter.prepare(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
+    filter.prepare(sampleRate, samplesPerBlock);
 }
 
 void HelyumAudioProcessor::releaseResources()
@@ -124,17 +125,13 @@ bool HelyumAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) c
 void HelyumAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
-
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    // auto totalNumInputChannels  = getTotalNumInputChannels();
+    // auto totalNumOutputChannels = getTotalNumOutputChannels();
+    //
+    // for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    //     buffer.clear (i, 0, buffer.getNumSamples());
 
     synth.process(buffer, midiMessages);
-
-    filter.setFrequency(*apvts.getRawParameterValue(ParameterIDs::FILTER_FREQ));
-    filter.setQ(*apvts.getRawParameterValue(ParameterIDs::FILTER_Q));
-
     filter.process(buffer);
 }
 
@@ -164,17 +161,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
     params.push_back(std::make_unique<juce::AudioParameterChoice>(ParameterIDs::OSC2_WAVE_CHOOSE, "Osc 2 wavetable", waveChoices, 0));
     params.push_back(std::make_unique<juce::AudioParameterInt>(ParameterIDs::OSC2_TRANSPOSE, "Osc 2 Transpose", -48, 48, 0));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_TUNE, "Osc 2 Tune", -1, 1, 0));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_PHASE_MULT, "Osc 1 Phase", 0.0f, 1.0f, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::OSC2_PHASE_MULT, "Osc 2 Phase", 0.0f, 1.0f, 1.0f));
 
     // Filter
     juce::StringArray filterChoices;
     for (int i = 0; i < Filter::allCount; i++)
         filterChoices.add(Filter::all[i].name);
+    params.push_back(std::make_unique<juce::AudioParameterBool>(ParameterIDs::FILTER_ACTIVE, "Filter Active", false));
     params.push_back(std::make_unique<juce::AudioParameterChoice>(ParameterIDs::FILTER_CHOOSE, "Filter", filterChoices, 0));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_GAIN, "Filter gain", -24.0f, 24.0f, 0.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_FREQ, "Filter frequency", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.25f), 440.0f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_Q, "Filter Q", 0.707f, 5.0f, 0.707f));
-    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_RESONANCE, "Filter resonance", 0.0f, 1.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_Q, "Filter Q", 0.01f, 5.0f, 0.707f));
 
     return { params.begin(), params.end() };
 }

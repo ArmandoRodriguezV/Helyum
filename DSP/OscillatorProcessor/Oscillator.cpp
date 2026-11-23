@@ -27,6 +27,7 @@ void Oscillator::prepare(const double sP)
 
 void Oscillator::setPhase(const float phs)
 {
+    if (phase == phs) return;
     phase = phs - std::floor(phs);
 }
 
@@ -38,18 +39,20 @@ void Oscillator::reset()
 // Setters
 void Oscillator::setFrequency(float freq)
 {
+    if (freq == frequency) return;
     frequency = freq;
     updatePhaseIncrement();
 }
 
 void Oscillator::setGain(const float g)
 {
+    if (gain == g) return;
     gain = g;
 }
 
 void Oscillator::setWaveFrame(const float wf)
 {
-    if (wavetable.size() <= 0)
+    if (wavetable.empty())
         return;
     waveFrame = static_cast<int>(wf * (wavetable.size() - 1));
 }
@@ -61,12 +64,14 @@ void Oscillator::setWavetable(const Wavetable::Table& table)
 
 void Oscillator::setTune(const float tn)
 {
+    if (tune == tn) return;
     tune = pow(2, tn / 12);
     updatePhaseIncrement();
 }
 
 void Oscillator::setTranspose(const float tpse)
 {
+    if (transpose == tpse) return;
     transpose = std::pow(2, tpse / 12);
     updatePhaseIncrement();
 }
