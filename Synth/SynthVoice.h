@@ -2,6 +2,7 @@
 #include <JuceHeader.h>
 #include "SynthSound.h"
 #include "../DSP/OscillatorProcessor/Oscillator.h"
+#include "../DSP/ADSRCore/ADSRCore.h"
 #include "../Resources/ParameterContext.h"
 #include "../Resources/ParameterIDs.h"
 #include "../Resources/Constants.h"
@@ -10,6 +11,8 @@ class SynthVoice: public juce::SynthesiserVoice
 {
 public:
     SynthVoice(ParameterContext& params);
+    void prepare(int samplesPerBlock);
+
     bool canPlaySound(juce::SynthesiserSound *) override;
     void setCurrentPlaybackSampleRate(double newRate) override;
     void controllerMoved(int controllerNumber, int newControllerValue) override;
@@ -47,4 +50,9 @@ private:
     // Osc always processor
     void osc1Processor();
     void osc2Processor();
+
+    // ADSR
+    ADSRCore adsr;
+    void processAdsr(juce::AudioBuffer<float>& buffer, int startSample, int numSamples);
+    juce::AudioBuffer<float> voiceBuffer;
 };

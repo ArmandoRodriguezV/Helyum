@@ -28,4 +28,14 @@ struct ParameterIDs {
     static constexpr const char* FILTER_Q = "FILTER_Q";
     static constexpr const char* FILTER_GAIN = "FILTER_GAIN";
 
+    // ADSR
+    static constexpr const char* ADSR_A = "ADSR_A";
+    static constexpr const char* ADSR_D = "ADSR_D";
+    static constexpr const char* ADSR_S = "ADSR_S";
+    static constexpr const char* ADSR_R = "ADSR_R";
+    static constexpr const char* ADSR_A_CURVE = "ADSR_A_CURVE";
+    static constexpr const char* ADSR_D_CURVE = "ADSR_D_CURVE";
+    static constexpr const char* ADSR_R_CURVE = "ADSR_R_CURVE";
+
+
 };

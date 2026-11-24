@@ -212,7 +212,7 @@ void OscillatorUI::preOptions()
     complexW.setLookAndFeel(&s1);
     effectMenu.setLookAndFeel(&s1);
 
-    effects.setLookAndFeel(&iS1);
+    effects.setLookAndFeel(&s1);
 
     effectPor.setTitle("Effect");
     effectPor.setInverseColor(true);

@@ -12,8 +12,14 @@ bool SynthVoice::canPlaySound(juce::SynthesiserSound* sound)
     return dynamic_cast<SynthSound*>(sound) != nullptr;
 }
 
-void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
+void SynthVoice::prepare(int samplesPerBlock)
 {
+    voiceBuffer.setSize(2, samplesPerBlock);
+    voiceBuffer.clear();
+}
+
+void SynthVoice::setCurrentPlaybackSampleRate(double newRate) {
+
     juce::SynthesiserVoice::setCurrentPlaybackSampleRate(newRate);
     const auto wt1 = WavetableLibrary::find(0);
     const auto wt2 = WavetableLibrary::find(0);
@@ -34,12 +40,15 @@ void SynthVoice::setCurrentPlaybackSampleRate(double newRate)
 
     Wavetable::wavetableOsc1 = osc1Wavetable[0];
     Wavetable::wavetableOsc2 = osc2Wavetable[0];
+
+    adsr.prepare(newRate);
 }
 
 void SynthVoice::pitchWheelMoved(int newPitchWheelValue)
 {
 
 }
+
 
 void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
@@ -49,20 +58,30 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer<float>& outputBuffer, int sta
     const bool enableOsc1 = params.get(ParameterIDs::OSC1_ENABLE);
     const bool enableOsc2 = params.get(ParameterIDs::OSC2_ENABLE);
 
+    voiceBuffer.clear(0, numSamples);
+
     for (int ch = 0; ch < 2; ++ch)
     {
-        auto* data = outputBuffer.getWritePointer(ch);
+        auto* data = voiceBuffer.getWritePointer(ch);
 
         if (enableOsc1)
-            osc1[ch].process(data + startSample, numSamples);
+            osc1[ch].process(data, numSamples);
 
         if (enableOsc2)
-            osc2[ch].process(data + startSample, numSamples);
+            osc2[ch].process(data, numSamples);
 
         for (int i = 0; i < numSamples; ++i)
-            data[startSample + i] *= velocity;
+            data[i] *= velocity;
+    }
+
+    processAdsr(voiceBuffer, 0, numSamples);
+
+    for (int ch = 0; ch < 2; ++ch)
+    {
+        outputBuffer.addFrom(ch, startSample, voiceBuffer, ch, 0, numSamples);
     }
 }
+
 
 void SynthVoice::alwaysProcess()
 {
@@ -173,23 +192,43 @@ void SynthVoice::osc2Processor()
     }
 }
 
+void SynthVoice::processAdsr(juce::AudioBuffer<float>& buffer, int startSample, int numSamples) {
+    adsr.setAttack(params.get(ParameterIDs::ADSR_A));
+    adsr.setDecay(params.get(ParameterIDs::ADSR_D));
+    adsr.setSustain(params.get(ParameterIDs::ADSR_S));
+    adsr.setRelease(params.get(ParameterIDs::ADSR_R));
+
+    adsr.setAttackCurve(params.get(ParameterIDs::ADSR_A_CURVE));
+    adsr.setDecayCurve(params.get(ParameterIDs::ADSR_D_CURVE));
+    adsr.setReleaseCurve(params.get(ParameterIDs::ADSR_R_CURVE));
+
+    adsr.process(buffer, startSample, numSamples);
+
+    if (!adsr.active())
+        clearCurrentNote();
+}
+
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
 {
-    clearCurrentNote();
+    juce::ignoreUnused(velocity);
+    if (allowTailOff)
+        adsr.end();
+    else
+        clearCurrentNote();
 }
-void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition)
+void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
 {
     this->velocity = velocity;
+    adsr.start();
 
     const float osc1Phase = random.nextFloat() * params.get(ParameterIDs::OSC1_PHASE_MULT);
     const float osc2Phase = random.nextFloat() * params.get(ParameterIDs::OSC2_PHASE_MULT);
-
     const auto freq = static_cast<float>(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber));
+
     for (int ch = 0; ch < totalChannels; ++ch)
     {
         osc1[ch].setFrequency(freq);
         osc2[ch].setFrequency(freq);
-
         osc1[ch].setPhase(osc1Phase);
         osc2[ch].setPhase(osc2Phase);
     }

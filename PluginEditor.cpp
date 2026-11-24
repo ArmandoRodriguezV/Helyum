@@ -18,11 +18,13 @@ HelyumAudioProcessorEditor::HelyumAudioProcessorEditor (HelyumAudioProcessor& p)
         ParameterIDs::OSC2_TRANSPOSE, ParameterIDs::OSC2_TUNE,
         ParameterIDs::OSC2_PHASE_MULT
         ),
-    filter(p.context)
+    filter(p.context),
+    adsr(p.context)
 {
-    startTimerHz(30);
+    startTimerHz(50);
     addAndMakeVisible(osc1);
     addAndMakeVisible(osc2);
+    addAndMakeVisible(adsr);
     addAndMakeVisible(filter);
     setSize(1200, 800);
 }
@@ -34,7 +36,7 @@ HelyumAudioProcessorEditor::~HelyumAudioProcessorEditor()
 //==============================================================================
 void HelyumAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    g.fillAll(juce::Colour(128, 128, 128));
+    g.fillAll(juce::Colour(100, 100, 128));
 }
 
 void HelyumAudioProcessorEditor::resized()
@@ -58,6 +60,7 @@ void HelyumAudioProcessorEditor::resized()
         juce::GridItem(osc1).withArea(1, 1),
         juce::GridItem(osc2).withArea(2, 1),
         juce::GridItem(filter).withArea(3, 1),
+        juce::GridItem(adsr).withArea(1, 2),
     };
 
     grid.performLayout(getLocalBounds());
@@ -67,4 +70,5 @@ void HelyumAudioProcessorEditor::timerCallback()
 {
     osc1.setWaveform(Wavetable::wavetableOsc1);
     osc2.setWaveform(Wavetable::wavetableOsc2);
+    adsr.update();
 }

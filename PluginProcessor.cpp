@@ -173,6 +173,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout HelyumAudioProcessor::parame
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_FREQ, "Filter frequency", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.25f), 440.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::FILTER_Q, "Filter Q", 0.01f, 5.0f, 0.707f));
 
+    // ADSR
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::ADSR_A, "Attack",  0.0f, 5.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::ADSR_D, "Decay",   0.0f, 5.0f, 5.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::ADSR_S, "Sustain", 0.0f, 1.0f, 1.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::ADSR_R, "Release", 0.0f, 5.0f, 0.125f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::ADSR_A_CURVE, "Attack curve",  -4.0f, 4.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::ADSR_D_CURVE, "Decay curve",   -4.0f, 4.0f, 0.0f));
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(ParameterIDs::ADSR_R_CURVE, "Release curve", -4.0f, 4.0f, 0.0f));
+
     return { params.begin(), params.end() };
 }
 
